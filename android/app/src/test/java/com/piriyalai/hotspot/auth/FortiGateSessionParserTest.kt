@@ -30,6 +30,15 @@ class FortiGateSessionParserTest {
     }
 
     @Test
+    fun extractFgtauthUrl_fromMetaRefresh() {
+        val html = """<meta http-equiv="refresh" content="0;url=https://login.piriyalaihotspot.com:1003/fgtauth?0601019c0b956a96">"""
+        assertEquals(
+            "https://login.piriyalaihotspot.com:1003/fgtauth?0601019c0b956a96",
+            FortiGateSessionParser.extractFgtauthUrl(html)
+        )
+    }
+
+    @Test
     fun isFortiGateLoginPage_detectsUsernamePasswordForm() {
         val html = """<form><input name="username"/><input name="password"/></form>"""
         assertTrue(

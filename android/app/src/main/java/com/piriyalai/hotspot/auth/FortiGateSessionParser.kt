@@ -13,6 +13,14 @@ object FortiGateSessionParser {
         """/fgtauth[/?]([0-9a-fA-F]+)""",
         Pattern.CASE_INSENSITIVE
     )
+    private val FGTAUTH_URL_PATTERN = Pattern.compile(
+        """https?://[^\s"'<>]+fgtauth\?[^\s"'<>]+""",
+        Pattern.CASE_INSENSITIVE
+    )
+    private val BARE_MAGIC_PATTERN = Pattern.compile(
+        """fgtauth\?([0-9a-fA-F]{8,})""",
+        Pattern.CASE_INSENSITIVE
+    )
 
     fun extractMagicFromUrl(url: String): String? {
         val query = runCatching {
@@ -43,6 +51,26 @@ object FortiGateSessionParser {
         val uri = java.net.URI(loginPageUrl)
         val portPart = if (uri.port == -1) "" else ":${uri.port}"
         return "${uri.scheme}://${uri.host}$portPart/fgtauth"
+    }
+
+    fun extractFgtauthUrl(text: String): String? {
+        val matcher = FGTAUTH_URL_PATTERN.matcher(text)
+        if (matcher.find()) {
+            return matcher.group()
+                .replace("&amp;", "&")
+                .trimEnd('"', '\'', ')', ';', '.', ',')
+        }
+        return null
+    }
+
+    fun extractMagicFromText(text: String): String? {
+        extractFgtauthUrl(text)?.let { extractMagicFromUrl(it) }?.let { return it }
+
+        val matcher = BARE_MAGIC_PATTERN.matcher(text)
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return null
     }
 
     fun isFortiGateLoginPage(html: String, pageUrl: String): Boolean {

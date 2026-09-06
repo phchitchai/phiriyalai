@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         credentialStore = CredentialStore(this)
+        HotspotAuthFacade.webViewProvider = { binding.portalWebView }
         loadSavedSettings()
         requestRuntimePermissions()
 
@@ -92,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.testLoginButton.isEnabled = false
-        binding.statusText.text = "กำลังหา gateway และทดสอบ login..."
+        binding.statusText.text = "กำลังเปิด HTTP เพื่อให้ FortiGate redirect ไป /fgtauth?magic ..."
 
         lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {

@@ -52,6 +52,10 @@ class FortiGateAuthClient(
         httpClient = httpClient
     )
 
+    fun loginWithSession(session: FortiGateSession, username: String, password: String): LoginResult {
+        return postCredentials(session, username, password)
+    }
+
     fun login(username: String, password: String): LoginResult {
         val errors = mutableListOf<String>()
 
@@ -171,31 +175,41 @@ class FortiGateAuthClient(
             formBuilder.add("4Tredir", redir)
         }
 
-        val postRequest = Request.Builder()
-            .url(session.postUrl)
-            .post(formBuilder.build())
-            .header("User-Agent", USER_AGENT)
-            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-            .header("Referer", session.loginPageUrl)
-            .build()
+        val postUrls = listOf(session.postUrl, session.loginPageUrl).distinct()
+        var lastError = "POST failed"
+        for (postUrl in postUrls) {
+            val postRequest = Request.Builder()
+                .url(postUrl)
+                .post(formBuilder.build())
+                .header("User-Agent", USER_AGENT)
+                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .header("Referer", session.loginPageUrl)
+                .build()
 
-        return runCatching {
-            httpClient.newCall(postRequest).execute().use { response ->
-                val responseBody = response.body?.string() ?: ""
-                val success = response.isSuccessful &&
-                    !responseBody.contains("auth_failed", ignoreCase = true) &&
-                    !responseBody.contains("login failed", ignoreCase = true) &&
-                    !responseBody.contains("invalid username", ignoreCase = true)
+            val result = runCatching {
+                httpClient.newCall(postRequest).execute().use { response ->
+                    val responseBody = response.body?.string() ?: ""
+                    val success = response.isSuccessful &&
+                        !responseBody.contains("auth_failed", ignoreCase = true) &&
+                        !responseBody.contains("login failed", ignoreCase = true) &&
+                        !responseBody.contains("invalid username", ignoreCase = true)
 
-                if (success) {
-                    LoginResult(true, "Login สำเร็จ\n${session.postUrl}", session.postUrl, session.loginPageUrl)
-                } else {
-                    LoginResult(false, "Login ไม่สำเร็จ (HTTP ${response.code}) ที่ ${session.postUrl}")
+                    if (success) {
+                        LoginResult(true, "Login สำเร็จ\n$postUrl", postUrl, session.loginPageUrl)
+                    } else {
+                        LoginResult(false, "Login ไม่สำเร็จ (HTTP ${response.code}) ที่ $postUrl")
+                    }
                 }
+            }.getOrElse { error ->
+                LoginResult(false, "$postUrl → ${error.message}")
             }
-        }.getOrElse { error ->
-            LoginResult(false, "${session.postUrl} → ${error.message}")
+
+            if (result.success) {
+                return result
+            }
+            lastError = result.message
         }
+        return LoginResult(false, lastError)
     }
 
     private fun fetchPage(url: String): String? {
