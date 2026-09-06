@@ -38,8 +38,8 @@
 
 ## ข้อควรรู้
 
-- Portal นี้ใช้ **port 1003** (FortiGate HTTPS captive portal) — **ไม่ใช่ Google Authenticator**
-- ต้องอยู่ใน WiFi โรงเรียนเท่านั้น (server ไม่ตอบจากอินเทอร์เน็ตภายนอก)
+- Portal ใช้ FortiGate captive portal — แอปจะลอง **gateway ในเครือข่าย** (เช่น `10.10.222.1:1000`) ก่อน เพราะ IP สาธารณะ `110.49.6.226:1003` มัก timeout จากใน WiFi
+- ถ้ายังไม่ได้: เปิด browser ดู URL หน้า login แล้วใส่ในแอป
 - เปิด **ยอมรับ certificate ของ portal** ถ้า login ไม่ผ่านเพราะ SSL
 - รหัสผ่านเก็บใน **EncryptedSharedPreferences** บนเครื่องเท่านั้น
 
