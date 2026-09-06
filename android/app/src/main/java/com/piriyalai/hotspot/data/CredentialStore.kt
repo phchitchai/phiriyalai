@@ -41,7 +41,7 @@ class CredentialStore(context: Context) {
     }
 
     fun hasCredentials(): Boolean {
-        return getUsername().isNotBlank() && getPassword().isNotBlank() && getPortalUrl().isNotBlank()
+        return getUsername().isNotBlank() && getPassword().isNotBlank()
     }
 
     companion object {

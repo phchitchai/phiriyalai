@@ -109,11 +109,19 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/statusText"
+        android:id="@+id/autoStatusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="สถานะ: พร้อมใช้งาน"
+        android:text="Auto-login: ยังไม่ทำงาน"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="สถานะ: เปิด Auto-login แล้วกดบันทึก จากนั้นปิดแอปได้ — จะ login เองเมื่อต่อ WiFi"
         android:textColor="?android:attr/textColorSecondary" />
 
     <android.webkit.WebView
