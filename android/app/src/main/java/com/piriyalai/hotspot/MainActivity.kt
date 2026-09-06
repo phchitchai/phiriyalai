@@ -9,11 +9,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.piriyalai.hotspot.auth.FortiGateAuthClient
+import com.piriyalai.hotspot.auth.HotspotAuthFacade
 import com.piriyalai.hotspot.data.CredentialStore
 import com.piriyalai.hotspot.databinding.ActivityMainBinding
-import com.piriyalai.hotspot.network.NetworkClientFactory
-import com.piriyalai.hotspot.network.PortalDiscovery
 import com.piriyalai.hotspot.service.HotspotLoginService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     ) { results ->
         val granted = results.values.all { it }
         if (!granted) {
-            Toast.makeText(this, "ต้องอนุญาตสิทธิ์เพื่อ auto-login", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "ต้องอนุญาตสิทธิ์ Location/WiFi เพื่อหา gateway", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -94,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.testLoginButton.isEnabled = false
-        binding.statusText.text = "กำลังค้นหา portal และทดสอบ login..."
+        binding.statusText.text = "กำลังหา gateway และทดสอบ login..."
 
         lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
@@ -115,20 +113,13 @@ class MainActivity : AppCompatActivity() {
             configuredPortalUrl: String,
             trustCert: Boolean
         ): com.piriyalai.hotspot.auth.LoginResult {
-            val httpClient = NetworkClientFactory.create(context, trustCert)
-            val candidates = PortalDiscovery.buildCandidateUrls(context, configuredPortalUrl)
-            val discovered = PortalDiscovery.discoverWorkingPortal(httpClient, candidates)
-            val portalList = if (discovered != null) {
-                listOf(discovered) + candidates
-            } else {
-                candidates
-            }
-
-            val client = FortiGateAuthClient(portalList, httpClient)
-            return runCatching { client.login(username, password) }
-                .getOrElse { error ->
-                    com.piriyalai.hotspot.auth.LoginResult(false, error.message ?: "error")
-                }
+            return HotspotAuthFacade.login(
+                context = context,
+                username = username,
+                password = password,
+                configuredPortalUrl = configuredPortalUrl,
+                trustCert = trustCert
+            )
         }
     }
 
@@ -146,10 +137,9 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions += Manifest.permission.POST_NOTIFICATIONS
         }
+        permissions += Manifest.permission.ACCESS_FINE_LOCATION
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions += Manifest.permission.NEARBY_WIFI_DEVICES
-        } else {
-            permissions += Manifest.permission.ACCESS_FINE_LOCATION
         }
 
         val missing = permissions.filter {

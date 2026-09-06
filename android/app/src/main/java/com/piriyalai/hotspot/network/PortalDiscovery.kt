@@ -15,8 +15,14 @@ object PortalDiscovery {
         "http://www.msftconnecttest.com/connecttest.txt"
     )
 
-    fun buildCandidateUrls(context: Context, configuredUrl: String?): List<String> {
+    fun buildCandidateUrls(
+        context: Context,
+        configuredUrl: String?,
+        clientIp: String? = LinkAddressResolver.getClientIp(context),
+        gatewayIp: String? = LinkAddressResolver.getGatewayIp(context)
+    ): List<String> {
         val candidates = linkedSetOf<String>()
+        candidates.addAll(buildCandidatesForNetwork(configuredUrl, clientIp, gatewayIp))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val connectivityManager =
@@ -30,27 +36,41 @@ object PortalDiscovery {
             }
         }
 
-        val dhcpGateway = GatewayResolver.getGatewayIp(context)
-        val clientIp = GatewayResolver.getClientIp(context)
+        return candidates.toList()
+    }
+
+    internal fun buildCandidatesForNetwork(
+        configuredUrl: String?,
+        clientIp: String?,
+        gatewayIp: String?
+    ): List<String> {
+        val candidates = linkedSetOf<String>()
+        val onPrivateNetwork = LinkAddressResolver.isPrivateNetworkIp(clientIp)
 
         val gatewayHosts = buildList {
-            dhcpGateway?.let { add(it) }
+            gatewayIp?.let { add(it) }
             clientIp?.let { addAll(GatewayResolver.guessGatewayCandidates(it)) }
         }.distinct()
 
         for (host in gatewayHosts) {
-            candidates.add("http://$host:1000/")
-            candidates.add("https://$host:1003/")
             candidates.add("http://$host/")
-            candidates.add("http://$host:80/")
+            candidates.add("http://$host:1000/")
+            candidates.add("http://$host:1003/")
+            candidates.add("https://$host:1003/")
+            candidates.add("http://$host/login")
         }
 
-        configuredUrl?.takeIf { it.isNotBlank() }?.let { candidates.add(normalizeBase(it)) }
+        configuredUrl?.takeIf { it.isNotBlank() }?.let { url ->
+            if (!onPrivateNetwork || !isPublicPortalHostname(url)) {
+                candidates.add(normalizeBase(url))
+            }
+        }
 
-        // Port 1000 (HTTP) often works when 1003 (HTTPS public IP) times out on local WiFi.
-        candidates.add("http://login.piriyalaihotspot.com:1000/")
-        candidates.add("https://login.piriyalaihotspot.com:1003/")
-        candidates.add("http://login.piriyalaihotspot.com/")
+        if (!onPrivateNetwork) {
+            candidates.add("http://login.piriyalaihotspot.com:1000/")
+            candidates.add("https://login.piriyalaihotspot.com:1003/")
+            candidates.add("http://login.piriyalaihotspot.com/")
+        }
 
         return candidates.toList()
     }
@@ -71,6 +91,12 @@ object PortalDiscovery {
         return null
     }
 
+    private fun isPublicPortalHostname(url: String): Boolean {
+        val lower = url.lowercase()
+        return lower.contains("login.piriyalaihotspot.com") ||
+            lower.contains("110.49.6.226")
+    }
+
     private fun findPortalFromProbe(httpClient: OkHttpClient, probeUrl: String): String? {
         return runCatching {
             val request = Request.Builder()
@@ -83,7 +109,7 @@ object PortalDiscovery {
                 val finalUrl = response.request.url.toString()
                 val body = response.body?.string() ?: ""
 
-                if (FortiGateAuthClient.containsMagicToken(body)) {
+                if (FortiGateAuthClient.containsMagicToken(body) || body.contains("mikrotik", true)) {
                     return normalizeBase(finalUrl)
                 }
 
@@ -99,7 +125,7 @@ object PortalDiscovery {
     }
 
     private fun hasLoginPage(httpClient: OkHttpClient, baseUrl: String): Boolean {
-        val paths = listOf("", "fgtauth", "login")
+        val paths = listOf("", "login", "fgtauth", "login.html")
         for (path in paths) {
             val url = if (path.isEmpty()) baseUrl else joinUrl(baseUrl, path)
             val found = runCatching {
@@ -111,7 +137,7 @@ object PortalDiscovery {
 
                 httpClient.newCall(request).execute().use { response ->
                     val body = response.body?.string() ?: ""
-                    FortiGateAuthClient.containsMagicToken(body)
+                    FortiGateAuthClient.containsMagicToken(body) || body.contains("mikrotik", true)
                 }
             }.getOrDefault(false)
 
@@ -128,7 +154,8 @@ object PortalDiscovery {
             lower.contains("fgtauth") ||
             lower.contains("login") ||
             lower.contains(":1000") ||
-            lower.contains(":1003")
+            lower.contains(":1003") ||
+            lower.contains("mikrotik")
     }
 
     private fun normalizeBase(url: String): String {
