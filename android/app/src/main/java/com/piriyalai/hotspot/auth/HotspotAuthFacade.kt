@@ -47,7 +47,7 @@ object HotspotAuthFacade {
         errors.add("Client IP: ${clientIp ?: "-"}")
 
         val trace = DiscoveryTrace()
-        val intercepted = CaptiveRedirectFinder.findSession(httpClient, trace)
+        val intercepted = CaptiveRedirectFinder.findSession(httpClient, gatewayIp, trace)
         if (intercepted != null) {
             errors.add("พบ magic จาก redirect: ${intercepted.loginPageUrl}")
             val result = client.loginWithSession(intercepted, username, password)

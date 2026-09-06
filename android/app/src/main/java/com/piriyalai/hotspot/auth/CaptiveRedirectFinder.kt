@@ -10,26 +10,50 @@ data class DiscoveryTrace(
         steps.add(message)
     }
 
-    fun toMessage(): String = steps.take(12).joinToString("\n")
+    fun toMessage(): String = steps.take(16).joinToString("\n")
 }
 
 /**
- * FortiGate only issues a magic token when an HTTP request is intercepted.
- * Opening /fgtauth without that token does not show a login form.
+ * FortiGate issues magic only when an HTTP request is intercepted.
+ * School DNS often blocks hostnames like neverssl.com, so probes use raw IPs first.
  */
 object CaptiveRedirectFinder {
-    private val probeUrls = listOf(
-        "http://neverssl.com/",
-        "http://connectivitycheck.gstatic.com/generate_204",
-        "http://www.gstatic.com/generate_204",
-        "http://clients3.google.com/generate_204",
-        "http://detectportal.firefox.com/canonical.html",
-        "http://www.msftconnecttest.com/connecttest.txt",
-        "http://captive.apple.com/hotspot-detect.html",
-        "http://example.com/"
+    private val ipProbes = listOf(
+        "http://1.1.1.1/",
+        "http://1.1.1.1/generate_204",
+        "http://8.8.8.8/",
+        "http://8.8.8.8/generate_204",
+        "http://1.0.0.1/",
+        "http://9.9.9.9/"
     )
 
-    fun findSession(httpClient: OkHttpClient, trace: DiscoveryTrace = DiscoveryTrace()): FortiGateSession? {
+    private val hostnameProbes = listOf(
+        "http://login.piriyalaihotspot.com:1003/",
+        "https://login.piriyalaihotspot.com:1003/fgtauth",
+        "http://login.piriyalaihotspot.com:1000/",
+        "http://neverssl.com/",
+        "http://connectivitycheck.gstatic.com/generate_204"
+    )
+
+    fun buildProbeUrls(gatewayIp: String?): List<String> {
+        val urls = linkedSetOf<String>()
+        urls.addAll(ipProbes)
+        if (!gatewayIp.isNullOrBlank()) {
+            urls.add("http://$gatewayIp/")
+            urls.add("http://$gatewayIp:1000/")
+            urls.add("http://$gatewayIp:1003/")
+        }
+        urls.add("http://172.17.0.1/")
+        urls.addAll(hostnameProbes)
+        return urls.toList()
+    }
+
+    fun findSession(
+        httpClient: OkHttpClient,
+        gatewayIp: String? = null,
+        trace: DiscoveryTrace = DiscoveryTrace()
+    ): FortiGateSession? {
+        val probeUrls = buildProbeUrls(gatewayIp)
         val noFollowClient = httpClient.newBuilder()
             .followRedirects(false)
             .followSslRedirects(false)
@@ -47,7 +71,7 @@ object CaptiveRedirectFinder {
             .followSslRedirects(true)
             .build()
 
-        for (probeUrl in probeUrls.take(4)) {
+        for (probeUrl in ipProbes.take(3)) {
             val session = inspect(followClient, probeUrl, trace, followOnce = false)
             if (session != null) {
                 return session

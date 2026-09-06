@@ -10,31 +10,32 @@ object LinkAddressResolver {
     fun getGatewayIp(context: Context): String? {
         val connectivityManager =
             context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = NetworkClientFactory.findWifiNetwork(context)
-            ?: connectivityManager.activeNetwork
-            ?: return GatewayResolver.getGatewayIp(context)
-
-        val linkProperties = connectivityManager.getLinkProperties(network) ?: return null
-        return linkProperties.routes
-            .firstOrNull { it.isDefaultRoute && it.gateway != null }
-            ?.gateway
-            ?.hostAddress
-            ?: GatewayResolver.getGatewayIp(context)
+        connectivityManager.allNetworks.forEach { network ->
+            val gateway = connectivityManager.getLinkProperties(network)
+                ?.routes
+                ?.firstOrNull { it.isDefaultRoute && it.gateway != null }
+                ?.gateway
+                ?.hostAddress
+            if (!gateway.isNullOrBlank() && gateway != "0.0.0.0") {
+                return gateway
+            }
+        }
+        return GatewayResolver.getGatewayIp(context)
     }
 
     fun getClientIp(context: Context): String? {
         val connectivityManager =
             context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = NetworkClientFactory.findWifiNetwork(context)
-            ?: connectivityManager.activeNetwork
-            ?: return GatewayResolver.getClientIp(context)
-
-        val linkProperties = connectivityManager.getLinkProperties(network) ?: return null
-        val fromLink = linkProperties.linkAddresses
-            .mapNotNull { it.toIpv4() }
-            .firstOrNull()
-
-        return fromLink ?: GatewayResolver.getClientIp(context)
+        connectivityManager.allNetworks.forEach { network ->
+            val ip = connectivityManager.getLinkProperties(network)
+                ?.linkAddresses
+                ?.mapNotNull { it.toIpv4() }
+                ?.firstOrNull()
+            if (!ip.isNullOrBlank()) {
+                return ip
+            }
+        }
+        return GatewayResolver.getClientIp(context)
     }
 
     fun isPrivateNetworkIp(ip: String?): Boolean {

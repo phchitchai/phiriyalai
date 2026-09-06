@@ -97,7 +97,7 @@ class WebViewPortalLogin(
     }
 
     companion object {
-        const val START_URL = "http://neverssl.com/"
+        const val START_URL = "http://1.1.1.1/"
 
         fun createOffscreen(context: Context): WebView {
             return WebView(context.applicationContext)

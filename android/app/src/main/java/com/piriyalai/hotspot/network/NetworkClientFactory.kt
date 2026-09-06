@@ -12,8 +12,9 @@ object NetworkClientFactory {
     fun create(context: Context, trustPortalCertificate: Boolean): OkHttpClient {
         val wifiNetwork = findWifiNetwork(context)
         val builder = OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
+            .dns(CaptivePortalDns)
+            .connectTimeout(8, TimeUnit.SECONDS)
+            .readTimeout(8, TimeUnit.SECONDS)
             .followRedirects(true)
             .followSslRedirects(true)
 
@@ -36,9 +37,13 @@ object NetworkClientFactory {
         val connectivityManager =
             context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        return connectivityManager.allNetworks.firstOrNull { network ->
+        val networks = connectivityManager.allNetworks
+        return networks.firstOrNull { network ->
             val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return@firstOrNull false
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-        }
+        } ?: networks.firstOrNull { network ->
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return@firstOrNull false
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
+        } ?: connectivityManager.activeNetwork
     }
 }
