@@ -1,1 +1,69 @@
-# phiriyalai
+# Piriyalai Hotspot Auto-Login
+
+แอป Android สำหรับ **login WiFi Hotspot โรงเรียนพิริยาลัยอัตโนมัติ** ที่ `login.piriyalaihotspot.com:1003` ด้วย username/password
+
+## ทำงานอย่างไร
+
+1. เชื่อมต่อ WiFi โรงเรียน
+2. แอปเปิดหน้า captive portal แล้วดึง `magic` token (FortiGate)
+3. ส่ง username + password ไปที่ `/fgtauth` อัตโนมัติ
+4. ไม่ต้องเปิด browser หรือพิมพ์รหัสเองทุกครั้ง
+
+## ดาวน์โหลด APK (ติดตั้งเลย)
+
+**[ดาวน์โหลด piriyalai-hotspot.apk](https://github.com/phchitchai/phiriyalai/raw/cursor/piriyalai-hotspot-autologin-8bf1/download/piriyalai-hotspot.apk)**
+
+หรือเปิดโฟลเดอร์ `download/` ใน repo แล้วกดไฟล์ `piriyalai-hotspot.apk`
+
+### ติดตั้งบนมือถือ
+
+1. ดาวน์โหลด APK ไปมือถือ Android 8.0+
+2. เปิดไฟล์ → อนุญาต **ติดตั้งจากแหล่งที่ไม่รู้จัก** (ถ้าถูกถาม)
+3. กดติดตั้ง
+
+## Build เอง (ถ้าต้องการ)
+
+1. เปิดโฟลเดอร์ `android/` ด้วย **Android Studio**
+2. Build APK: `Build > Build Bundle(s) / APK(s) > Build APK(s)`
+
+## การใช้งาน
+
+1. เปิดแอป **Piriyalai Hotspot**
+2. กรอก:
+   - **Portal URL**: `http://login.piriyalaihotspot.com:1000/` (ค่าเริ่มต้น — แอปจะลอง gateway ในเครือข่ายอัตโนมัติ)
+   - **Username** / **Password** ของ hotspot
+   - **WiFi SSID** (ถ้ารู้ชื่อ WiFi โรงเรียน — ถ้าเว้นว่างจะ login ทุก WiFi)
+3. เปิด **Auto-login** แล้วกด **บันทึก**
+4. กด **ทดสอบ Login** ขณะเชื่อมต่อ WiFi โรงเรียนเพื่อตรวจสอบ
+
+## ข้อควรรู้
+
+- Portal ใช้ FortiGate captive portal — แอปจะลอง **gateway ในเครือข่าย** (เช่น `10.10.222.1:1000`) ก่อน เพราะ IP สาธารณะ `110.49.6.226:1003` มัก timeout จากใน WiFi
+- ถ้ายังไม่ได้: เปิด browser ดู URL หน้า login แล้วใส่ในแอป
+- เปิด **ยอมรับ certificate ของ portal** ถ้า login ไม่ผ่านเพราะ SSL
+- รหัสผ่านเก็บใน **EncryptedSharedPreferences** บนเครื่องเท่านั้น
+
+## สิทธิ์ที่ต้องการ
+
+- Internet / WiFi state — ตรวจจับการเชื่อมต่อ
+- Location หรือ Nearby WiFi (Android 13+) — อ่านชื่อ WiFi
+- Notifications — แสดงสถานะ foreground service
+
+## พัฒนา / ทดสอบ
+
+```bash
+cd android
+./gradlew test
+```
+
+Unit test ครอบคลุมการ parse `magic` token จาก HTML ของ FortiGate portal
+
+## โครงสร้าง
+
+```
+android/app/src/main/java/com/piriyalai/hotspot/
+├── MainActivity.kt              # หน้าตั้งค่า
+├── auth/FortiGateAuthClient.kt  # logic login portal
+├── service/HotspotLoginService.kt # auto-login เมื่อ WiFi เชื่อมต่อ
+└── data/CredentialStore.kt      # เก็บ credentials แบบเข้ารหัส
+```
