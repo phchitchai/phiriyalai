@@ -1,0 +1,13 @@
+# Android SDK (local)
+android/local.properties
+android-sdk/
+android/.gradle/
+android/app/build/
+android/build/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
