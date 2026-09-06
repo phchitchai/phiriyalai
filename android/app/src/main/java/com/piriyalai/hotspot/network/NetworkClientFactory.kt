@@ -12,8 +12,8 @@ object NetworkClientFactory {
     fun create(context: Context, trustPortalCertificate: Boolean): OkHttpClient {
         val wifiNetwork = findWifiNetwork(context)
         val builder = OkHttpClient.Builder()
-            .connectTimeout(8, TimeUnit.SECONDS)
-            .readTimeout(8, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
             .followRedirects(true)
             .followSslRedirects(true)
 
