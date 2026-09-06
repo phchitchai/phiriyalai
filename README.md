@@ -9,11 +9,22 @@
 3. ส่ง username + password ไปที่ `/fgtauth` อัตโนมัติ
 4. ไม่ต้องเปิด browser หรือพิมพ์รหัสเองทุกครั้ง
 
-## ติดตั้ง
+## ดาวน์โหลด APK (ติดตั้งเลย)
+
+**[ดาวน์โหลด piriyalai-hotspot.apk](https://github.com/phchitchai/phiriyalai/raw/cursor/piriyalai-hotspot-autologin-8bf1/download/piriyalai-hotspot.apk)**
+
+หรือเปิดโฟลเดอร์ `download/` ใน repo แล้วกดไฟล์ `piriyalai-hotspot.apk`
+
+### ติดตั้งบนมือถือ
+
+1. ดาวน์โหลด APK ไปมือถือ Android 8.0+
+2. เปิดไฟล์ → อนุญาต **ติดตั้งจากแหล่งที่ไม่รู้จัก** (ถ้าถูกถาม)
+3. กดติดตั้ง
+
+## Build เอง (ถ้าต้องการ)
 
 1. เปิดโฟลเดอร์ `android/` ด้วย **Android Studio**
 2. Build APK: `Build > Build Bundle(s) / APK(s) > Build APK(s)`
-3. ติดตั้ง APK บนมือถือ Android 8.0+
 
 ## การใช้งาน
 
