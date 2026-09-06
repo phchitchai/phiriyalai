@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Piriyalai Hotspot</string>
-    <string name="app_description">Auto-login สำหรับ WiFi Hotspot โรงเรียนพิริยาลัย (login.piriyalaihotspot.com:1003)</string>
+    <string name="app_description">Auto-login สำหรับ WiFi Hotspot โรงเรียนพิริยาลัย — แอปจะลอง gateway ในเครือข่ายก่อน (port 1000/1003)</string>
 </resources>

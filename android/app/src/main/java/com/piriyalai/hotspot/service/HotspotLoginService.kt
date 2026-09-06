@@ -18,7 +18,6 @@ import androidx.core.app.NotificationCompat
 import com.piriyalai.hotspot.BuildConfig
 import com.piriyalai.hotspot.MainActivity
 import com.piriyalai.hotspot.R
-import com.piriyalai.hotspot.auth.FortiGateAuthClient
 import com.piriyalai.hotspot.data.CredentialStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -106,13 +105,14 @@ class HotspotLoginService : Service() {
             updateNotification("กำลัง login... ($reason)")
 
             val portalUrl = store.getPortalUrl().ifBlank { BuildConfig.DEFAULT_PORTAL_URL }
-            val client = FortiGateAuthClient(
-                portalBaseUrl = portalUrl,
-                httpClient = FortiGateAuthClient.createDefaultClient(store.trustPortalCertificate())
-            )
-
             val result = runCatching {
-                client.login(store.getUsername(), store.getPassword())
+                MainActivity.performLogin(
+                    context = this@HotspotLoginService,
+                    username = store.getUsername(),
+                    password = store.getPassword(),
+                    configuredPortalUrl = portalUrl,
+                    trustCert = store.trustPortalCertificate()
+                )
             }.getOrElse { error ->
                 com.piriyalai.hotspot.auth.LoginResult(false, error.message ?: "เกิดข้อผิดพลาด")
             }

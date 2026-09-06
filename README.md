@@ -30,7 +30,7 @@
 
 1. เปิดแอป **Piriyalai Hotspot**
 2. กรอก:
-   - **Portal URL**: `https://login.piriyalaihotspot.com:1003/` (ค่าเริ่มต้น)
+   - **Portal URL**: `http://login.piriyalaihotspot.com:1000/` (ค่าเริ่มต้น — แอปจะลอง gateway ในเครือข่ายอัตโนมัติ)
    - **Username** / **Password** ของ hotspot
    - **WiFi SSID** (ถ้ารู้ชื่อ WiFi โรงเรียน — ถ้าเว้นว่างจะ login ทุก WiFi)
 3. เปิด **Auto-login** แล้วกด **บันทึก**

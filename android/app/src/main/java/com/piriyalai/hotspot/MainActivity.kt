@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import com.piriyalai.hotspot.auth.FortiGateAuthClient
 import com.piriyalai.hotspot.data.CredentialStore
 import com.piriyalai.hotspot.databinding.ActivityMainBinding
+import com.piriyalai.hotspot.network.NetworkClientFactory
+import com.piriyalai.hotspot.network.PortalDiscovery
 import com.piriyalai.hotspot.service.HotspotLoginService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -92,22 +94,51 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.testLoginButton.isEnabled = false
-        binding.statusText.text = "กำลังทดสอบ login..."
+        binding.statusText.text = "กำลังค้นหา portal และทดสอบ login..."
 
         lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
-                val client = FortiGateAuthClient(
-                    portalBaseUrl = portalUrl,
-                    httpClient = FortiGateAuthClient.createDefaultClient(trustCert)
-                )
-                runCatching { client.login(username, password) }
-                    .getOrElse { error -> com.piriyalai.hotspot.auth.LoginResult(false, error.message ?: "error") }
+                performLogin(username, password, portalUrl, trustCert)
             }
 
             binding.testLoginButton.isEnabled = true
             binding.statusText.text = result.message
             Toast.makeText(this@MainActivity, result.message, Toast.LENGTH_LONG).show()
         }
+    }
+
+    companion object {
+        fun performLogin(
+            context: android.content.Context,
+            username: String,
+            password: String,
+            configuredPortalUrl: String,
+            trustCert: Boolean
+        ): com.piriyalai.hotspot.auth.LoginResult {
+            val httpClient = NetworkClientFactory.create(context, trustCert)
+            val candidates = PortalDiscovery.buildCandidateUrls(context, configuredPortalUrl)
+            val discovered = PortalDiscovery.discoverWorkingPortal(httpClient, candidates)
+            val portalList = if (discovered != null) {
+                listOf(discovered) + candidates
+            } else {
+                candidates
+            }
+
+            val client = FortiGateAuthClient(portalList, httpClient)
+            return runCatching { client.login(username, password) }
+                .getOrElse { error ->
+                    com.piriyalai.hotspot.auth.LoginResult(false, error.message ?: "error")
+                }
+        }
+    }
+
+    private fun performLogin(
+        username: String,
+        password: String,
+        portalUrl: String,
+        trustCert: Boolean
+    ): com.piriyalai.hotspot.auth.LoginResult {
+        return performLogin(this, username, password, portalUrl, trustCert)
     }
 
     private fun requestRuntimePermissions() {
