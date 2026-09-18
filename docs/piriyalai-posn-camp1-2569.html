@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>สอวน. ค่าย 1 ปีการศึกษา 2569 — โรงเรียนพิริยาลัยจังหวัดแพร่</title>
+  <style>
+    :root {
+      --navy: #0d3550;
+      --navy-2: #164a6b;
+      --gold: #d4a017;
+      --gold-2: #f0d48a;
+      --cream: #f6f1e6;
+      --ink: #1b2430;
+      --muted: #5c6670;
+      --white: #ffffff;
+      --math: #1e5f8a;
+      --bio: #1f7a4d;
+      --chem: #c45c26;
+      --comp: #3e4ea8;
+      --phys: #6b3fa0;
+      --earth: #2a6f97;
+      --astro: #b07a12;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0d3550;
+      color: var(--ink);
+      font-family: "Noto Sans Thai", "Sarabun", "TH Sarabun New", sans-serif;
+    }
+    .sheet {
+      width: 1600px;
+      min-height: 1060px;
+      margin: 0;
+      background: linear-gradient(180deg, #ffffff 0%, #fbf8f2 100%);
+      overflow: hidden;
+    }
+    .topbar {
+      background: linear-gradient(90deg, var(--navy) 0%, var(--navy-2) 70%, #1a5f7a 100%);
+      color: white;
+      padding: 22px 32px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      position: relative;
+    }
+    .topbar::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold-2) 50%, var(--gold) 100%);
+    }
+    .kicker {
+      letter-spacing: .18em;
+      font-size: 14px;
+      color: var(--gold-2);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .subtitle {
+      margin-top: 4px;
+      font-size: 18px;
+      opacity: .92;
+    }
+    .hero-stat {
+      min-width: 168px;
+      text-align: center;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(240, 212, 138, .35);
+      border-radius: 16px;
+      padding: 10px 16px 12px;
+    }
+    .hero-stat .num {
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--gold-2);
+    }
+    .hero-stat .label {
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    .body {
+      padding: 26px 32px 20px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 22px;
+    }
+    .panel {
+      background: var(--cream);
+      border-radius: 16px;
+      padding: 16px 16px 12px;
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: var(--navy);
+    }
+    .chips { display: grid; gap: 8px; }
+    .chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 1px 0 rgba(13,53,80,.06);
+    }
+    .chip .left { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .count {
+      background: var(--navy);
+      color: white;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .note {
+      margin-top: 14px;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .groups {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .card {
+      background: white;
+      border: 1px solid #eadfca;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .card .head {
+      color: white;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 17px;
+    }
+    .card ul {
+      list-style: none;
+      margin: 0;
+      padding: 8px 10px 10px;
+    }
+    .card li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 6px;
+      padding: 7px 2px;
+      font-size: 15.5px;
+      border-bottom: 1px dashed #eee4d2;
+    }
+    .card li:last-child { border-bottom: 0; }
+    .idx {
+      color: var(--gold);
+      font-weight: 800;
+    }
+    .name { font-weight: 700; }
+    .camp { color: var(--muted); font-size: 13.5px; margin-top: 1px; }
+    .footer {
+      margin: 0 32px 24px;
+      background: var(--navy);
+      color: white;
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      font-size: 14.5px;
+    }
+    .footer b { color: var(--gold-2); }
+    .source { opacity: .85; }
+    @media print {
+      body { background: white; }
+      .sheet { margin: 0; box-shadow: none; border-radius: 0; width: 1123px; }
+    }
+  </style>
+</head>
+<body>
+  <article class="sheet">
+    <header class="topbar">
+      <div>
+        <div class="kicker">INFO • POSN CAMP 1 • CMU 2026</div>
+        <h1>นักเรียนผ่านคัดเลือก สอวน. ค่าย 1</h1>
+        <div class="subtitle">โรงเรียนพิริยาลัยจังหวัดแพร่ • ปีการศึกษา 2569 • ศูนย์ มหาวิทยาลัยเชียงใหม่</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">20</div>
+        <div class="label">คน ผ่านคัดเลือก<br>7 สาขาวิชา</div>
+      </div>
+    </header>
+
+    <div class="body">
+      <aside class="panel">
+        <h2>สรุปตามสาขา</h2>
+        <div class="chips">
+          <div class="chip"><span class="left"><span class="dot" style="background:var(--math)"></span>คณิตศาสตร์</span><span class="count">4</span></div>
+          <div class="chip"><span class="left"><span class="dot" style="background:var(--bio)"></span>ชีววิทยา</span><span class="count">4</span></div>
+          <div class="chip"><span class="left"><span class="dot" style="background:var(--chem)"></span>เคมี</span><span class="count">3</span></div>
+          <div class="chip"><span class="left"><span class="dot" style="background:var(--comp)"></span>คอมพิวเตอร์</span><span class="count">3</span></div>
+          <div class="chip"><span class="left"><span class="dot" style="background:var(--phys)"></span>ฟิสิกส์</span><span class="count">3</span></div>
+          <div class="chip"><span class="left"><span class="dot" style="background:var(--earth)"></span>โลกและอวกาศ</span><span class="count">2</span></div>
+          <div class="chip"><span class="left"><span class="dot" style="background:var(--astro)"></span>ดาราศาสตร์ ม.ต้น</span><span class="count">1</span></div>
+        </div>
+        <p class="note">ยังไม่มีรายชื่อดาราศาสตร์ ม.ปลาย ในประกาศรอบนี้ ชีววิทยาทั้ง 4 คนเข้าค่ายที่โรงเรียนพิริยาลัยจังหวัดแพร่</p>
+      </aside>
+
+      <section class="groups">
+        <div class="card">
+          <div class="head" style="background:var(--math)"><span>คณิตศาสตร์</span><span>4 คน</span></div>
+          <ul>
+            <li><span class="idx">01</span><div><div class="name">นายพศิน งานขยัน</div><div class="camp">ค่ายจักรคำคณาทร จ.ลำพูน</div></div></li>
+            <li><span class="idx">02</span><div><div class="name">นายวรินทร นามวงค์กา</div><div class="camp">ค่าย จุฬาภรณราชวิทยาลัย เชียงราย</div></div></li>
+            <li><span class="idx">03</span><div><div class="name">นางสาวจิราภัค วรรณชัย</div><div class="camp">ค่าย จุฬาภรณราชวิทยาลัย เชียงราย</div></div></li>
+            <li><span class="idx">04</span><div><div class="name">นายธนพัฒน์ ขันทรง</div><div class="camp">ค่าย จุฬาภรณราชวิทยาลัย เชียงราย</div></div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="head" style="background:var(--bio)"><span>ชีววิทยา</span><span>4 คน</span></div>
+          <ul>
+            <li><span class="idx">05</span><div><div class="name">นายชญานนท์ วิใจคำ</div><div class="camp">ค่ายโรงเรียนพิริยาลัยจังหวัดแพร่</div></div></li>
+            <li><span class="idx">06</span><div><div class="name">นายพัทธ์ เกิดสุขโข</div><div class="camp">ค่ายโรงเรียนพิริยาลัยจังหวัดแพร่</div></div></li>
+            <li><span class="idx">07</span><div><div class="name">นายอมเรศ จิตรคง</div><div class="camp">ค่ายโรงเรียนพิริยาลัยจังหวัดแพร่</div></div></li>
+            <li><span class="idx">08</span><div><div class="name">นายปภังกร สายวงค์</div><div class="camp">ค่ายโรงเรียนพิริยาลัยจังหวัดแพร่</div></div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="head" style="background:var(--chem)"><span>เคมี</span><span>3 คน</span></div>
+          <ul>
+            <li><span class="idx">09</span><div><div class="name">นายรัชพล กาศแสวง</div><div class="camp">ค่ายบุญวาทย์วิทยาลัย จ.ลำปาง</div></div></li>
+            <li><span class="idx">10</span><div><div class="name">นางสาวฐิติรัตน์ ผาทอง</div><div class="camp">ค่ายบุญวาทย์วิทยาลัย จ.ลำปาง</div></div></li>
+            <li><span class="idx">11</span><div><div class="name">นางสาวณภัทร ชายป่า</div><div class="camp">ค่ายบุญวาทย์วิทยาลัย จ.ลำปาง</div></div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="head" style="background:var(--comp)"><span>คอมพิวเตอร์</span><span>3 คน</span></div>
+          <ul>
+            <li><span class="idx">12</span><div><div class="name">นายพัฒนพล สุธรรม</div><div class="camp">ค่ายยุพราชวิทยาลัย จ.เชียงใหม่</div></div></li>
+            <li><span class="idx">13</span><div><div class="name">นายกฤษฎิ์จิรัฎฐ์ แดนเหมือง</div><div class="camp">ค่ายสตรีศรีน่าน จ.น่าน</div></div></li>
+            <li><span class="idx">14</span><div><div class="name">นายรัชพล บุญทร</div><div class="camp">ค่ายสตรีศรีน่าน จ.น่าน</div></div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="head" style="background:var(--phys)"><span>ฟิสิกส์</span><span>3 คน</span></div>
+          <ul>
+            <li><span class="idx">15</span><div><div class="name">นายสรวิชญ์ สอนทิพย์</div><div class="camp">ค่ายนวมินทราชูทิศ พายัพ</div></div></li>
+            <li><span class="idx">16</span><div><div class="name">นายณภัทร ปัญญาใส</div><div class="camp">ค่ายสามัคคีวิทยาคม จ.เชียงราย</div></div></li>
+            <li><span class="idx">17</span><div><div class="name">นายธีรธัช วงค์สม</div><div class="camp">ค่ายสามัคคีวิทยาคม จ.เชียงราย</div></div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="head" style="background:linear-gradient(90deg,var(--earth),var(--astro))"><span>โลกและอวกาศ + ดารา ม.ต้น</span><span>3 คน</span></div>
+          <ul>
+            <li><span class="idx">18</span><div><div class="name">นางสาวจุฑามาศ เกิดสุวรรณ</div><div class="camp">วิทยาศาสตร์โลกและอวกาศ • มหาวิทยาลัยเชียงใหม่</div></div></li>
+            <li><span class="idx">19</span><div><div class="name">นายปรัตถกร หาญอุ่น</div><div class="camp">วิทยาศาสตร์โลกและอวกาศ • มหาวิทยาลัยเชียงใหม่</div></div></li>
+            <li><span class="idx">20</span><div><div class="name">เด็กชายภัทรพิศาล สูตรอุดม</div><div class="camp">ดาราศาสตร์ ม.ต้น • เสริมงามวิทยาคม จ.ลำปาง</div></div></li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div>ยืนยันเข้าค่ายวันที่ <b>18–23 กันยายน 2569</b> ที่เว็บไซต์โครงการโอลิมปิกวิชาการ หากไม่ยืนยันถือว่าสละสิทธิ์</div>
+      <div class="source">แหล่งข้อมูล: ประกาศคณะวิทยาศาสตร์ มหาวิทยาลัยเชียงใหม่ 18 ก.ย. 2569</div>
+    </footer>
+  </article>
+</body>
+</html>
